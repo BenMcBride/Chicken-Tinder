@@ -1,4 +1,12 @@
 const { User } = require("../models/users.model");
+const jwt = require('jsonwebtoken');
+const secretKey = process.env.SECRET_KEY;
+
+
+const generateAuthToken = (id) => {
+  const token = jwt.sign({ _id: id }, secretKey);
+  return token;
+};
 
 module.exports.index = (req, res) => {
   User.find()
@@ -14,7 +22,10 @@ module.exports.findUsersAll = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   User.create(req.body)
-    .then((newUser) => res.status(201).json(newUser))
+    .then((newUser) => {
+      const token = generateAuthToken(newUser._id);
+      res.status(201).json({ user: newUser, token });
+    })
     .catch((err) => res.status(400).json(err));
 };
 

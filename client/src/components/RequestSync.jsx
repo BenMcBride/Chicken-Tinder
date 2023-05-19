@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { Button, Card, Form } from 'react-bootstrap';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const RequestSyncForm = (props) => {
   const [requestsync, setRequestSync] = useState({
@@ -9,6 +11,11 @@ const RequestSyncForm = (props) => {
     searchDistance: '',
   });
   const [errors, setErrors] = useState(null);
+  const navigate = useNavigate();
+  const {session} = useContext(AuthContext)
+  if (!session) {
+    navigate('/')
+  }
 
   const changeHandler = (e) => {
     setRequestSync({
@@ -38,7 +45,7 @@ const RequestSyncForm = (props) => {
   };
 
   return (
-    <Card className="mb-3" style={{width: '30rem'}}>
+    <Card className="mb-3" style={{width: '30rem', margin: '0 auto'}}>
       <Card.Header>
         <h1 className='text-center'>Send Dine-Sync Request!</h1>
       </Card.Header>
