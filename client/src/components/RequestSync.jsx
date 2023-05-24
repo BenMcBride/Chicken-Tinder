@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Button, Card, Form } from 'react-bootstrap';
 import axios from 'axios';
@@ -6,16 +6,14 @@ import { useNavigate } from 'react-router-dom';
 
 const RequestSyncForm = (props) => {
   const [requestsync, setRequestSync] = useState({
+    senderEmail: '',
     email: '',
     searchLocation: '',
     searchDistance: '',
   });
   const [errors, setErrors] = useState(null);
   const navigate = useNavigate();
-  const {session} = useContext(AuthContext)
-  if (!session) {
-    navigate('/')
-  }
+  const { state } = useContext(AuthContext);
 
   const changeHandler = (e) => {
     setRequestSync({
@@ -26,17 +24,20 @@ const RequestSyncForm = (props) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
+    const seshData = JSON.parse(localStorage.getItem('session'));
+    const senderEmail = seshData.user.email;
+    requestsync.senderEmail = senderEmail;
     axios
-      .post('http://localhost:8000/api/requestsyncs', requestsync)
+      .post('http://localhost:8000/api/requests/request', requestsync)
       .then((res) => {
-        console.log(res);
         setRequestSync({
+          senderEmail: '',
           email: '',
           searchLocation: '',
           searchDistance: '',
         });
-        setErrors(null)
-        props.setLoaded(false);
+        setErrors(null);
+        navigate('/requests/pending');
       })
       .catch((err) => {
         console.log(err);
@@ -44,10 +45,16 @@ const RequestSyncForm = (props) => {
       });
   };
 
+  useEffect(() => {
+    if (!state.session) {
+      navigate('/users/login');
+    }
+  }, []);
+
   return (
-    <Card className="mb-3" style={{width: '30rem', margin: '0 auto'}}>
+    <Card className="mb-3" style={{ width: '30rem', margin: '0 auto' }}>
       <Card.Header>
-        <h1 className='text-center'>Send Dine-Sync Request!</h1>
+        <h1 className="text-center">Send Dine-Sync Request!</h1>
       </Card.Header>
       <Card.Body>
         <Form onSubmit={submitHandler}>
@@ -59,40 +66,57 @@ const RequestSyncForm = (props) => {
               value={requestsync.email}
               name="email"
               id="email"
-              className={`${errors?.email ? 'is-invalid' :''}`}
+              className={`${errors?.email ? 'is-invalid' : ''}`}
             />
-            {errors?.email && <Form.Text className='text-danger'>{errors.email.message}</Form.Text>}
+            {errors?.email && (
+              <Form.Text className="text-danger">
+                {errors.email.message}
+              </Form.Text>
+            )}
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label htmlFor="searchLocation">Address to search from:</Form.Label>
+            <Form.Label htmlFor="searchLocation">
+              Address to search from:
+            </Form.Label>
             <Form.Control
               type="text"
               onChange={changeHandler}
               value={requestsync.searchLocation}
               name="searchLocation"
               id="searchLocation"
-              className={`${errors?.searchLocation ? 'is-invalid' :''}`}
+              className={`${errors?.searchLocation ? 'is-invalid' : ''}`}
             />
-            {errors?.searchLocation && <Form.Text className='text-danger'>{errors.searchLocation.message}</Form.Text>}
+            {errors?.searchLocation && (
+              <Form.Text className="text-danger">
+                {errors.searchLocation.message}
+              </Form.Text>
+            )}
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label htmlFor="searchDistance">Search Distance (in miles):</Form.Label>
+            <Form.Label htmlFor="searchDistance">
+              Search Distance (in miles):
+            </Form.Label>
             <Form.Control
               type="number"
               onChange={changeHandler}
               value={requestsync.searchDistance}
               name="searchDistance"
               id="searchDistance"
-              className={`${errors?.searchDistance ? 'is-invalid' :''}`}
+              className={`${errors?.searchDistance ? 'is-invalid' : ''}`}
             />
-            {errors?.searchDistance && <Form.Text className='text-danger'>{errors.searchDistance.message}</Form.Text>}
+            {errors?.searchDistance && (
+              <Form.Text className="text-danger">
+                {errors.searchDistance.message}
+              </Form.Text>
+            )}
           </Form.Group>
           <Form.Group className="text-center">
-            <Button type="submit">Add RequestSync</Button>
+            <Button type="submit">Send Request</Button>
           </Form.Group>
         </Form>
       </Card.Body>
     </Card>
   );
 };
+
 export default RequestSyncForm;
