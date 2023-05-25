@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { useParams } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import socket from '../static/socket-client';
+import Modal from 'react-bootstrap/Modal';
 
 const containerStyle = {
   display: 'none',
@@ -21,10 +23,15 @@ const options = {
 };
 
 function SwipeComponent() {
+  const [showModal, setShowModal] = useState(false);
+  const [matchedRestaurant, setMatchedRestaurant] = useState(null);
+  const { requestId } = useParams();
   const [restaurants, setRestaurants] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const searchAddress = '566 University Rd, Friday Harbor, WA 98250';
-  const searchDistance = '2000';
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [link, setLink] = useState('');
+  const [searchAddress, setSearchAddress] = useState(''); // State for storing search address
+  const [searchDistance, setSearchDistance] = useState(''); // State for storing search distance
   const apiKey = 'AIzaSyDov8i3afDlFQoqJKJO0CvGQuGDwSKlAHM'; // Replace with your actual API key
   const geoApiKey = 'e6d34d302758481bad0d32c23984a630';
 
@@ -63,7 +70,17 @@ function SwipeComponent() {
 
       const { data } = response;
       if (data.status === 'OK') {
-        const restaurants = data.results;
+        const restaurants = data.results.map((restaurant) => {
+          let photoUrl = '';
+          if (restaurant.photos && restaurant.photos.length > 0) {
+            const photoReference = restaurant.photos[0].photo_reference;
+            photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxheight=400&photo_reference=${photoReference}&key=${apiKey}`;
+          }
+          return {
+            ...restaurant,
+            photoUrl: photoUrl,
+          };
+        });
         return restaurants;
       } else {
         throw new Error('Failed to fetch restaurants');
@@ -75,18 +92,58 @@ function SwipeComponent() {
   };
 
   useEffect(() => {
-    const getRestaurants = async () => {
+    const getRequestData = async () => {
       try {
-        const location = await geocodeAddress(searchAddress);
-        const restaurants = await fetchRestaurants(location, searchDistance);
-        setRestaurants(restaurants);
+        const response = await axios.get(
+          `http://localhost:8000/api/requests/${requestId}`
+        );
+        const { data } = response;
+        setSearchAddress(data.message.searchLocation);
+        setSearchDistance(data.message.searchDistance);
       } catch (error) {
         console.error(error);
       }
     };
 
-    getRestaurants();
+    getRequestData();
   }, []);
+
+  useEffect(() => {
+    const getRestaurants = async () => {
+      try {
+        const location = await geocodeAddress(searchAddress);
+        const restaurants = await fetchRestaurants(location, searchDistance);
+        setRestaurants(restaurants);
+        setPhotoUrl(restaurants.length > 0 ? restaurants[0].photoUrl : '');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (searchAddress && searchDistance) {
+      getRestaurants();
+    }
+  }, [searchAddress, searchDistance]);
+
+  useEffect(() => {
+    if (currentIndex < restaurants.length) {
+      setPhotoUrl(restaurants[currentIndex].photoUrl);
+    }
+  }, [currentIndex, restaurants]);
+
+  useEffect(() => {
+    socket.on('matchedRestaurant', (matchedRestaurant) => {
+      const placeId = matchedRestaurant.place_id;
+      setLink(`https://www.google.com/maps/place/?q=place_id:${placeId}`);
+      setMatchedRestaurant(matchedRestaurant);
+      setShowModal(true);
+    });
+  }, []);
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setMatchedRestaurant(null);
+  };
 
   const handleAccept = () => {
     const acceptedRestaurant = restaurants[currentIndex];
@@ -115,28 +172,62 @@ function SwipeComponent() {
       {restaurants.length > 0 && currentIndex < restaurants.length ? (
         <Card className="center">
           <Card.Header>
-            <Card.Title>{restaurants[currentIndex].name}</Card.Title>
+            <Card.Title className="text-center">
+              {restaurants[currentIndex].name}
+            </Card.Title>
           </Card.Header>
           <Card.Body>
-            <Card.Text>Rating: {restaurants[currentIndex].rating}</Card.Text>
+            <Card.Img variant="top" src={photoUrl} />
+            <Card.Text className="mt-2 text-center">
+              Rating: {restaurants[currentIndex].rating}
+            </Card.Text>
           </Card.Body>
-          <Card.Footer>
+          <Card.Footer className="w-100 text-center">
             <Button variant="primary" onClick={handleAccept}>
               Accept
             </Button>
-            <Button variant="danger" onClick={handleReject}>
+            <Button className="ml-1" variant="danger" onClick={handleReject}>
               Reject
             </Button>
           </Card.Footer>
         </Card>
       ) : (
-        // <Card
-        //   restaurant={restaurants[currentIndex]}
-        //   onAccept={handleAccept}
-        //   onReject={handleReject}
-        // />
         <p>No more restaurants to swipe!</p>
       )}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Matched Restaurant</Modal.Title>
+        </Modal.Header>
+        {matchedRestaurant && (
+          <>
+            <Modal.Body>
+              <Card>
+                <Card.Header>
+                  <Card.Title className="text-center">
+                    {matchedRestaurant.name}
+                  </Card.Title>
+                </Card.Header>
+                <Card.Body>
+                  <Card.Img variant="top" src={matchedRestaurant.photoUrl} />
+                  <Card.Text className="mt-2 text-center">
+                    Rating: {matchedRestaurant.rating}
+                  </Card.Text>
+                </Card.Body>
+                <Card.Footer className="w-100 text-center">
+                  <Button variant="primary" href={link} target="_blank">
+                    View Restaurant
+                  </Button>
+                </Card.Footer>
+              </Card>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </>
+        )}
+      </Modal>
     </div>
   ) : (
     <div>Loading...</div>

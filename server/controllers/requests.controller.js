@@ -8,6 +8,12 @@ module.exports.findRequests = (req, res) => {
     .catch((err) => res.status(400).json(err));
 };
 
+module.exports.findRequest = (req, res) => {
+  Request.findById(req.params.id)
+    .then((request) => res.status(200).json(request))
+    .catch((err) => res.status(400).json(err));
+};
+
 module.exports.deleteRequest = (req, res) => {
   Request.findByIdAndDelete(req.params.id)
     .then((result) => res.status(200).json(result))
@@ -50,10 +56,6 @@ module.exports.getGoogleRestaurants = async (req, res) => {
     const radius = req.query.radius;
     const type = req.query.type;
     const key = req.query.key;
-    console.log(location);
-    console.log(radius);
-    console.log(type);
-    console.log(key);
     const response = await axios.get(
       "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
       {
@@ -65,9 +67,21 @@ module.exports.getGoogleRestaurants = async (req, res) => {
         },
       }
     );
-    console.log(response.data.results);
-    const restaurants = response.data.results;
-    res.status(200).json({ status: "OK", results: restaurants });
+
+    const { results } = response.data;
+
+    const restaurantsWithPhotos = results.map((restaurant) => {
+      let photoUrl = "";
+      if (restaurant.photos && restaurant.photos.length > 0) {
+        const photoReference = restaurant.photos[0].photo_reference;
+        photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoReference}&key=${key}`;
+      }
+      return {
+        ...restaurant,
+        photoUrl: photoUrl,
+      };
+    });
+    res.status(200).json({ status: "OK", results: restaurantsWithPhotos });
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message });
@@ -88,17 +102,12 @@ module.exports.acceptRequest = (req, res) => {
 
 module.exports.sendRequest = async (req, res) => {
   const { senderEmail, email, searchLocation, searchDistance } = req.body;
-
   try {
-    // Find the sender and recipient users based on their email
     const sender = await User.findOne({ email: senderEmail });
     const recipient = await User.findOne({ email: email });
-
     if (!sender || !recipient) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Create a request object
     const request = new Request({
       sender: sender._id,
       recipient: recipient._id,
@@ -107,11 +116,8 @@ module.exports.sendRequest = async (req, res) => {
         searchDistance,
       },
     });
-
-    // Save the request
     await request.save();
-
-    res.status(200).json({ message: "Request sent successfully" });
+    res.status(200).json({ requestId: request._id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

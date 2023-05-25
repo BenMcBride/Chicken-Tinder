@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { io } from 'socket.io-client';
+import { io } from 'server/server';
 import LoginModal from './LoginModal';
 import NewUserModal from './NewUserModal';
 

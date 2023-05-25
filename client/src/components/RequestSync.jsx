@@ -36,8 +36,9 @@ const RequestSyncForm = (props) => {
           searchLocation: '',
           searchDistance: '',
         });
+        const requestId = res.data.requestId;
         setErrors(null);
-        navigate('/requests/pending');
+        navigate(`/requests/pending/${requestId}`);
       })
       .catch((err) => {
         console.log(err);
@@ -94,7 +95,7 @@ const RequestSyncForm = (props) => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label htmlFor="searchDistance">
-              Search Distance (in miles):
+              Search Distance (in meters):
             </Form.Label>
             <Form.Control
               type="number"

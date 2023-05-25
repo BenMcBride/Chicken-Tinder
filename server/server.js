@@ -17,26 +17,24 @@ require("./routes/requests.routes")(app, io);
 
 server.listen(port, () => console.log(`Listening on port: ${port}`));
 
+module.exports = { app, server, io }; // Export the io instance
+
 const findMatchedRestaurant = (acceptedRestaurants) => {
-  const acceptedRestaurantNames = acceptedRestaurants.map(
-    (restaurant) => restaurant.name
+  const restaurantCounts = {};
+  for (const restaurant of acceptedRestaurants) {
+    const { place_id } = restaurant;
+    if (!restaurantCounts[place_id]) {
+      restaurantCounts[place_id] = 0;
+    }
+    restaurantCounts[place_id]++;
+  }
+  const matchedRestaurantId = Object.keys(restaurantCounts).find(
+    (placeId) => restaurantCounts[placeId] >= 2
   );
 
-  // Check if all users have accepted the same restaurant
-  const matchedRestaurantName = acceptedRestaurantNames.reduce(
-    (commonName, restaurantName) => {
-      if (!commonName) {
-        return restaurantName;
-      }
-      return commonName === restaurantName ? commonName : null;
-    },
-    null
-  );
-
-  if (matchedRestaurantName) {
-    // Find the full restaurant object with the matched name
+  if (matchedRestaurantId) {
     const matchedRestaurant = acceptedRestaurants.find(
-      (restaurant) => restaurant.name === matchedRestaurantName
+      (restaurant) => restaurant.place_id === matchedRestaurantId
     );
     return matchedRestaurant;
   }
@@ -44,7 +42,10 @@ const findMatchedRestaurant = (acceptedRestaurants) => {
   return null;
 };
 
+const connectedSockets = new Set();
+
 io.on("connection", (socket) => {
+  connectedSockets.add(socket);
   console.log("A user connected", socket.id);
 
   socket.on("requestAccepted", (requestId) => {
@@ -52,31 +53,34 @@ io.on("connection", (socket) => {
   });
 
   socket.on("restaurantAccepted", (acceptedRestaurant) => {
-    socket.broadcast.emit("restaurantAccepted", acceptedRestaurant);
+    if (!socket.acceptedRestaurants) {
+      socket.acceptedRestaurants = new Set();
+    }
+    socket.acceptedRestaurants.add(acceptedRestaurant);
+    const allAcceptedRestaurants = Array.from(connectedSockets).reduce(
+      (allAcceptedRestaurants, currentSocket) => {
+        const currentSocketAcceptedRestaurants = Array.from(
+          currentSocket.acceptedRestaurants || new Set()
+        );
+        return [...allAcceptedRestaurants, ...currentSocketAcceptedRestaurants];
+      },
+      []
+    );
+    if (allAcceptedRestaurants.length >= 2) {
+      const matchedRestaurant = findMatchedRestaurant(allAcceptedRestaurants);
+      if (matchedRestaurant) {
+        io.emit("matchedRestaurant", matchedRestaurant);
+      }
+    }
   });
 
   socket.on("restaurantRejected", (rejectedRestaurant) => {
     socket.broadcast.emit("restaurantRejected", rejectedRestaurant);
   });
 
-  const acceptedRestaurants = new Set(); // Set to store accepted restaurants for each user
-
-  socket.on("restaurantAccepted", (acceptedRestaurant) => {
-    acceptedRestaurants.add(acceptedRestaurant);
-
-    // Check if both users have accepted the same restaurant
-    // You can adjust this condition based on your requirements
-    if (acceptedRestaurants.size === 2) {
-      const acceptedRestaurantArray = Array.from(acceptedRestaurants);
-      const matchedRestaurant = findMatchedRestaurant(acceptedRestaurantArray);
-      if (matchedRestaurant) {
-        io.emit("matchedRestaurant", matchedRestaurant);
-        // You can perform additional actions or stop the process here
-      }
-    }
-  });
-
   socket.on("disconnect", () => {
+    connectedSockets.delete(socket);
+
     console.log("A user disconnected");
   });
 });

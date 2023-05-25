@@ -1,12 +1,14 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import socket from '../static/socket-client';
 
 function ReceivedRequests() {
+  const { state } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getReceivedRequests = async () => {
@@ -14,7 +16,7 @@ function ReceivedRequests() {
         const seshData = await JSON.parse(localStorage.getItem('session'));
         const id = seshData.user.id;
         const receivedRequestsResponse = await fetch(
-          `http://localhost:8000/api/requests/received?recipient=${id}` // Pass the recipient ID as a query parameter
+          `http://localhost:8000/api/requests/received?recipient=${id}`
         );
         const receivedRequestsData = await receivedRequestsResponse.json();
         const receivedRequests = receivedRequestsData.requests;
@@ -35,6 +37,7 @@ function ReceivedRequests() {
         }
       );
       if (response.ok) {
+        socket.emit('requestAccepted', requestId);
         const updatedRequests = requests.map((request) => {
           if (request._id === requestId) {
             return { ...request, status: 'Accepted' };
@@ -42,9 +45,6 @@ function ReceivedRequests() {
           return request;
         });
         setRequests(updatedRequests);
-
-        // Emit a socket event to notify the sender
-        socket.emit('requestAccepted', requestId);
       } else {
         console.error('Failed to accept request');
       }
@@ -62,7 +62,6 @@ function ReceivedRequests() {
         }
       );
       if (response.ok) {
-        // Request declined successfully, update the UI accordingly
         const updatedRequests = requests.map((request) => {
           if (request._id === requestId) {
             return { ...request, status: 'Declined' };
@@ -77,6 +76,12 @@ function ReceivedRequests() {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (!state.session) {
+      navigate('/users/login');
+    }
+  }, []);
 
   return (
     <div className="messages-container d-flex justify-content-center flex-column center">
@@ -101,7 +106,7 @@ function ReceivedRequests() {
               <td>
                 {request.status === 'Pending' ? (
                   <>
-                    <Link to="/requests/swipe">
+                    <Link to={`/requests/swipe/${request._id}`}>
                       <Button
                         variant="success"
                         onClick={() => handleAccept(request._id)}

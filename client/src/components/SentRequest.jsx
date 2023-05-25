@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate, useParams } from 'react-router-dom';
 import socket from '../static/socket-client';
 
 function SentRequest() {
+  const { requestId } = useParams();
   const [isRequestAccepted, setIsRequestAccepted] = useState(false);
   const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
 
   useEffect(() => {
     // Listen for the 'requestAccepted' event from the receiver
@@ -24,9 +27,15 @@ function SentRequest() {
   useEffect(() => {
     // Redirect to the swiping component when the request is accepted
     if (isRequestAccepted) {
-      navigate('/requests/swipe'); // Update the route path according to your application's routing
+      navigate(`/requests/swipe/${requestId}`);
     }
   }, [isRequestAccepted, navigate]);
+
+  useEffect(() => {
+    if (!state.session) {
+      navigate('/users/login');
+    }
+  }, []);
 
   return (
     <div className="sent-request-container">

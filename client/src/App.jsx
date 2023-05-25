@@ -18,13 +18,19 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/requests/pending" element={<SentRequest />} />
+          <Route
+            path="/requests/pending/:requestId"
+            element={<SentRequest />}
+          />
           <Route path="/requests/new" element={<RequestSync />} />
           <Route
             path="/users/requests/received"
             element={<ReceivedRequests />}
           />
-          <Route path="/requests/swipe" element={<SwipeComponent />} />
+          <Route
+            path="/requests/swipe/:requestId"
+            element={<SwipeComponent />}
+          />
         </Routes>
       </Container>
     </AuthProvider>
