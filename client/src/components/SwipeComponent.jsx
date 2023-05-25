@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import socket from '../static/socket-client';
@@ -23,6 +24,8 @@ const options = {
 };
 
 function SwipeComponent() {
+  const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const [matchedRestaurant, setMatchedRestaurant] = useState(null);
   const { requestId } = useParams();
@@ -137,7 +140,28 @@ function SwipeComponent() {
       setLink(`https://www.google.com/maps/place/?q=place_id:${placeId}`);
       setMatchedRestaurant(matchedRestaurant);
       setShowModal(true);
+      matched(`https://www.google.com/maps/place/?q=place_id:${placeId}`);
     });
+  }, []);
+
+  const matched = async (rLink) => {
+    try {
+      await axios.patch(
+        `http://localhost:8000/api/requests/${requestId}/complete`,
+        {
+          status: 'Completed',
+          matchedRestaurantLink: rLink,
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!state.session) {
+      navigate('/');
+    }
   }, []);
 
   const handleCloseModal = () => {

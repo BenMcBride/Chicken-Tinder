@@ -33,7 +33,7 @@ function SentRequest() {
 
   useEffect(() => {
     if (!state.session) {
-      navigate('/users/login');
+      navigate('/');
     }
   }, []);
 

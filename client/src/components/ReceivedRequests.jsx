@@ -79,7 +79,7 @@ function ReceivedRequests() {
 
   useEffect(() => {
     if (!state.session) {
-      navigate('/users/login');
+      navigate('/');
     }
   }, []);
 
@@ -121,6 +121,15 @@ function ReceivedRequests() {
                     >
                       Decline
                     </Button>
+                  </>
+                ) : (
+                  <></>
+                )}
+                {request.status === 'Completed' ? (
+                  <>
+                    <Link to={request.matchedRestaurantLink} target="_blank">
+                      Matched Restaurant
+                    </Link>
                   </>
                 ) : (
                   <span>None</span>

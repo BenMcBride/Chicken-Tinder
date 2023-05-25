@@ -48,14 +48,14 @@ const RequestSyncForm = (props) => {
 
   useEffect(() => {
     if (!state.session) {
-      navigate('/users/login');
+      navigate('/');
     }
   }, []);
 
   return (
     <Card className="mb-3" style={{ width: '30rem', margin: '0 auto' }}>
       <Card.Header>
-        <h1 className="text-center">Send Dine-Sync Request!</h1>
+        <h1 className="text-center">Send a Sync Request!</h1>
       </Card.Header>
       <Card.Body>
         <Form onSubmit={submitHandler}>

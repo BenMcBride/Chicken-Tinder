@@ -1,12 +1,10 @@
-// imported from https://react-bootstrap.github.io/components/navbar/
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { io } from 'server/server';
 import LoginModal from './LoginModal';
 import NewUserModal from './NewUserModal';
 
@@ -23,16 +21,6 @@ function Header() {
     navigate('/');
   };
 
-  useEffect(() => {
-    const socket = io('http://localhost:8000');
-    socket.on('message', (message) => {
-      console.log('Received message:', message);
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   return (
     <>
       <NewUserModal show={showSignUp} setShow={setShowSignUp} />
@@ -46,11 +34,18 @@ function Header() {
           <Navbar.Collapse id="header">
             <Nav as="ul" className="me-auto">
               {state.session ? (
-                <li className="nav-item">
-                  <Link className="nav-link" to="/requests/new">
-                    Sync Request!
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link className="nav-link" to="/dashboard">
+                      Home
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/requests/new">
+                      Send Request!
+                    </Link>
+                  </li>
+                </>
               ) : (
                 <li>
                   <Link className="nav-link" to="/dashboard">

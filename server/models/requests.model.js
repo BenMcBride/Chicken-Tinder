@@ -20,6 +20,10 @@ const requestSchema = new mongoose.Schema({
     default: "Pending",
     // "Pending", "Accepted", or "Declined"
   },
+  matchedRestaurantLink: {
+    type: String,
+    default: "",
+  },
 });
 
 module.exports.Request = mongoose.model("Request", requestSchema);

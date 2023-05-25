@@ -37,6 +37,7 @@ module.exports.findReceivedRequests = async (req, res) => {
       searchLocation: request.message.searchLocation,
       searchDistance: request.message.searchDistance,
       status: request.status,
+      matchedRestaurantLink: request.matchedRestaurantLink,
     }));
     res.status(200).json({ requests: transformedRequests });
   } catch (error) {
@@ -98,6 +99,25 @@ module.exports.acceptRequest = (req, res) => {
   Request.findByIdAndUpdate(req.params.id, { status: "Accepted" })
     .then((updatedRequest) => res.status(200).json(updatedRequest))
     .catch((err) => res.status(400).json(err));
+};
+
+module.exports.completeRequest = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const request = await Request.findByIdAndUpdate(
+      id,
+      {
+        status: "Completed",
+        matchedRestaurantLink: req.body.matchedRestaurantLink,
+      },
+      { new: true }
+    );
+    await request.save();
+    res.status(200).json(request);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(error);
+  }
 };
 
 module.exports.sendRequest = async (req, res) => {
