@@ -9,11 +9,10 @@ function SentRequest() {
   useEffect(() => {
     // Listen for the 'requestAccepted' event from the receiver
     socket.on('requestAccepted1', (requestId) => {
-      console.log('request accepted! new');
       // Check if the received request ID matches the current request
       // Can use the requestId to identify the specific request
       // For example: if (requestId === currentRequestId)
-      navigate('/requests/swipe');
+      setIsRequestAccepted(true);
     });
 
     // Clean up the socket event listener when the component is unmounted
@@ -25,7 +24,7 @@ function SentRequest() {
   useEffect(() => {
     // Redirect to the swiping component when the request is accepted
     if (isRequestAccepted) {
-      // Update the route path according to your application's routing
+      navigate('/requests/swipe'); // Update the route path according to your application's routing
     }
   }, [isRequestAccepted, navigate]);
 

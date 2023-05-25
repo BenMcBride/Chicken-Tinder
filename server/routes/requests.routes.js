@@ -9,4 +9,5 @@ module.exports = function (app, io) {
   app.patch("/api/requests/:id/accept", RequestsController.acceptRequest);
   app.put("/api/requests/:id", RequestsController.updateRequest);
   app.delete("/api/requests", RequestsController.deleteAllRequests); // careful with this one
+  app.get("/api/requests/google", RequestsController.getGoogleRestaurants);
 };

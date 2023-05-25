@@ -1,5 +1,6 @@
 const { Request } = require("../models/requests.model");
 const { User } = require("../models/users.model");
+const axios = require("axios");
 
 module.exports.findRequests = (req, res) => {
   Request.find()
@@ -41,6 +42,36 @@ module.exports.updateRequest = (req, res) => {
   Request.findByIdAndUpdate(req.params.id, req.body)
     .then((updatedRequest) => res.status(200).json(updatedRequest))
     .catch((err) => res.status(400).json(err));
+};
+
+module.exports.getGoogleRestaurants = async (req, res) => {
+  try {
+    const location = req.query.location;
+    const radius = req.query.radius;
+    const type = req.query.type;
+    const key = req.query.key;
+    console.log(location);
+    console.log(radius);
+    console.log(type);
+    console.log(key);
+    const response = await axios.get(
+      "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+      {
+        params: {
+          location: location,
+          radius: radius,
+          type: type,
+          key: key,
+        },
+      }
+    );
+    console.log(response.data.results);
+    const restaurants = response.data.results;
+    res.status(200).json({ status: "OK", results: restaurants });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
 };
 
 module.exports.declineRequest = (req, res) => {
