@@ -3,6 +3,7 @@ const RequestsController = require("../controllers/requests.controller");
 module.exports = function (app, io) {
   app.get("/api/requests", RequestsController.findRequests);
   app.get("/api/requests/received", RequestsController.findReceivedRequests);
+  app.get("/api/requests/sent", RequestsController.findSentRequests);
   app.post("/api/requests/request", RequestsController.sendRequest);
   app.delete("/api/requests/:id", RequestsController.deleteRequest);
   app.patch("/api/requests/:id/decline", RequestsController.declineRequest);

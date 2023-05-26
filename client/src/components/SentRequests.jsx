@@ -5,78 +5,28 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import socket from '../static/socket-client';
 
-function ReceivedRequests() {
+function SentRequests() {
   const { state } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getReceivedRequests = async () => {
+    const getSentRequests = async () => {
       try {
         const seshData = await JSON.parse(localStorage.getItem('session'));
         const id = seshData.user.id;
-        const receivedRequestsResponse = await fetch(
-          `http://localhost:8000/api/requests/received?recipient=${id}`
+        const sentRequestsResponse = await fetch(
+          `http://localhost:8000/api/requests/sent?sender=${id}`
         );
-        const receivedRequestsData = await receivedRequestsResponse.json();
-        const receivedRequests = receivedRequestsData.requests;
-        setRequests(receivedRequests);
+        const sentRequestsData = await sentRequestsResponse.json();
+        const sentRequests = sentRequestsData.requests;
+        setRequests(sentRequests);
       } catch (error) {
         console.error(error);
       }
     };
-    getReceivedRequests();
+    getSentRequests();
   }, []);
-
-  const handleAccept = async (requestId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/requests/${requestId}/accept`,
-        {
-          method: 'PATCH',
-        }
-      );
-      if (response.ok) {
-        socket.emit('requestAccepted', requestId);
-        const updatedRequests = requests.map((request) => {
-          if (request._id === requestId) {
-            return { ...request, status: 'Accepted' };
-          }
-          return request;
-        });
-        setRequests(updatedRequests);
-      } else {
-        console.error('Failed to accept request');
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDecline = async (requestId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/requests/${requestId}/decline`,
-        {
-          method: 'PATCH',
-        }
-      );
-      if (response.ok) {
-        socket.emit('requestDenied', requestId);
-        const updatedRequests = requests.map((request) => {
-          if (request._id === requestId) {
-            return { ...request, status: 'Declined' };
-          }
-          return request;
-        });
-        setRequests(updatedRequests);
-      } else {
-        console.error('Failed to decline request');
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
     const checkSession = () => {
@@ -93,9 +43,13 @@ function ReceivedRequests() {
     navigate(`/requests/swipe/${requestId}`);
   };
 
+  const handleRejoinWait = (requestId) => {
+    navigate(`/requests/pending/${requestId}`);
+  };
+
   return (
     <div className="messages-container d-flex justify-content-center flex-column center">
-      <h2 className="text-center">Received Requests</h2>
+      <h2 className="text-center">Sent Requests</h2>
       <Table striped bordered responsive>
         <thead>
           <tr>
@@ -109,27 +63,19 @@ function ReceivedRequests() {
           {requests.map((request, index) => (
             <tr key={index}>
               <td>{request.searchLocation}</td>
-              <td>{request.searchDistance * 0.001} km</td>
+              <td>{request.searchDistance} km</td>
               <td>
                 <em>{request.status}</em>
               </td>
               <td>
                 {request.status === 'Pending' ? (
                   <>
-                    <Link to={`/requests/swipe/${request._id}`}>
-                      <Button
-                        variant="success"
-                        onClick={() => handleAccept(request._id)}
-                      >
-                        Accept
-                      </Button>
-                    </Link>
                     <Button
-                      variant="danger"
+                      variant="primary"
                       className="ml-1"
-                      onClick={() => handleDecline(request._id)}
+                      onClick={() => handleRejoinWait(request._id)}
                     >
-                      Decline
+                      Re-join Waiting room
                     </Button>
                   </>
                 ) : request.status === 'Accepted' ? (
@@ -160,4 +106,4 @@ function ReceivedRequests() {
   );
 }
 
-export default ReceivedRequests;
+export default SentRequests;

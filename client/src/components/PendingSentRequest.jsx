@@ -6,30 +6,41 @@ import socket from '../static/socket-client';
 function SentRequest() {
   const { requestId } = useParams();
   const [isRequestAccepted, setIsRequestAccepted] = useState(false);
+  const [isRequestDenied, setIsRequestDenied] = useState(false);
   const navigate = useNavigate();
   const { state } = useContext(AuthContext);
 
   useEffect(() => {
     // Listen for the 'requestAccepted' event from the receiver
-    socket.on('requestAccepted1', (requestId) => {
-      // Check if the received request ID matches the current request
-      // Can use the requestId to identify the specific request
-      // For example: if (requestId === currentRequestId)
-      setIsRequestAccepted(true);
+    socket.on('requestAccepted1', (receivedRequestId) => {
+      if (requestId === receivedRequestId) {
+        setIsRequestAccepted(true);
+      }
+    });
+    socket.on('requestDenied1', (receivedRequestId) => {
+      if (requestId === receivedRequestId) {
+        setIsRequestDenied(true);
+      }
     });
 
     // Clean up the socket event listener when the component is unmounted
     return () => {
-      socket.off('requestAccepted');
+      socket.off('requestAccepted1');
+      socket.off('requestDenied1');
     };
   }, []);
 
   useEffect(() => {
-    // Redirect to the swiping component when the request is accepted
     if (isRequestAccepted) {
       navigate(`/requests/swipe/${requestId}`);
     }
   }, [isRequestAccepted, navigate]);
+
+  useEffect(() => {
+    if (isRequestDenied) {
+      navigate(`/users/requests/received`);
+    }
+  }, [isRequestDenied, navigate]);
 
   useEffect(() => {
     if (!state.session) {

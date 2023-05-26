@@ -45,6 +45,25 @@ module.exports.findReceivedRequests = async (req, res) => {
   }
 };
 
+module.exports.findSentRequests = async (req, res) => {
+  const senderId = req.query.sender;
+  try {
+    const requests = await Request.find({ sender: senderId });
+    const transformedRequests = requests.map((request) => ({
+      _id: request._id,
+      sender: request.sender,
+      recipient: request.recipient,
+      searchLocation: request.message.searchLocation,
+      searchDistance: request.message.searchDistance,
+      status: request.status,
+      matchedRestaurantLink: request.matchedRestaurantLink,
+    }));
+    res.status(200).json({ requests: transformedRequests });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports.updateRequest = (req, res) => {
   Request.findByIdAndUpdate(req.params.id, req.body)
     .then((updatedRequest) => res.status(200).json(updatedRequest))
@@ -121,7 +140,9 @@ module.exports.completeRequest = async (req, res) => {
 };
 
 module.exports.sendRequest = async (req, res) => {
-  const { senderEmail, email, searchLocation, searchDistance } = req.body;
+  const { senderEmail, email, searchLocation } = req.body;
+  let { searchDistance } = req.body;
+  searchDistance = searchDistance * 1000;
   try {
     const sender = await User.findOne({ email: senderEmail });
     const recipient = await User.findOne({ email: email });

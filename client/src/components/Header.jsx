@@ -2,17 +2,20 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
-import { Link, useNavigate } from 'react-router-dom';
-import { useState, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import LoginModal from './LoginModal';
 import NewUserModal from './NewUserModal';
+import socket from '../static/socket-client';
 
 function Header() {
   const { dispatch, state } = useContext(AuthContext);
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const location = useLocation();
 
   const handleLogout = () => {
     dispatch({
@@ -20,6 +23,42 @@ function Header() {
     });
     navigate('/');
   };
+
+  const fetchPendingRequestsCount = async () => {
+    try {
+      const seshData = await JSON.parse(localStorage.getItem('session'));
+      const id = seshData.user.id;
+      const response = await fetch(
+        `http://localhost:8000/api/requests/received?recipient=${id}`
+      );
+      const data = await response.json();
+      let count = 0;
+      for (const request of data.requests) {
+        if (request.status === 'Pending') {
+          count++;
+        }
+      }
+      setPendingRequestsCount(count);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    const handleMessageReceived = () => {
+      fetchPendingRequestsCount();
+    };
+    if (state.session) {
+      socket.on('messageReceived', handleMessageReceived);
+    }
+    return () => {
+      socket.off('messageReceived', handleMessageReceived);
+    };
+  }, [state.session]);
+
+  useEffect(() => {
+    fetchPendingRequestsCount();
+  }, [location.pathname]);
 
   return (
     <>
@@ -58,9 +97,24 @@ function Header() {
               <div className="d-flex gap-2">
                 <Button
                   className="btn ms-auto"
-                  onClick={() => navigate('/users/requests/received')}
+                  onClick={() => {
+                    if (location.pathname === '/users/requests/received') {
+                      window.location.reload();
+                    } else {
+                      navigate('/users/requests/received');
+                    }
+                  }}
                 >
-                  Requests
+                  Inbox{' '}
+                  {pendingRequestsCount > 0 && `(${pendingRequestsCount})`}
+                </Button>
+                <Button
+                  className="btn ms-auto"
+                  onClick={() => {
+                    navigate('/users/requests/sent');
+                  }}
+                >
+                  Sent
                 </Button>
                 <Button className="btn ms-auto" onClick={handleLogout}>
                   Logout

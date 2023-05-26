@@ -7,8 +7,9 @@ import Header from './components/Header';
 import AuthProvider from './context/AuthContext';
 import Dashboard from './components/Dashboard';
 import ReceivedRequests from './components/ReceivedRequests';
-import SentRequest from './components/SentRequest';
+import PendingSentRequest from './components/PendingSentRequest';
 import SwipeComponent from './components/SwipeComponent';
+import SentRequests from './components/SentRequests';
 
 function App() {
   return (
@@ -20,13 +21,14 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route
             path="/requests/pending/:requestId"
-            element={<SentRequest />}
+            element={<PendingSentRequest />}
           />
           <Route path="/requests/new" element={<RequestSync />} />
           <Route
             path="/users/requests/received"
             element={<ReceivedRequests />}
           />
+          <Route path="/users/requests/sent" element={<SentRequests />} />
           <Route
             path="/requests/swipe/:requestId"
             element={<SwipeComponent />}

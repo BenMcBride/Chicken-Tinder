@@ -52,6 +52,10 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("requestAccepted1", requestId);
   });
 
+  socket.on("requestDenied", (requestId) => {
+    socket.broadcast.emit("requestDenied1", requestId);
+  });
+
   socket.on("restaurantAccepted", (acceptedRestaurant) => {
     if (!socket.acceptedRestaurants) {
       socket.acceptedRestaurants = new Set();
@@ -76,6 +80,10 @@ io.on("connection", (socket) => {
 
   socket.on("restaurantRejected", (rejectedRestaurant) => {
     socket.broadcast.emit("restaurantRejected", rejectedRestaurant);
+  });
+
+  socket.on("messageSent", (receiverEmail) => {
+    socket.broadcast.emit("messageReceived", receiverEmail);
   });
 
   socket.on("disconnect", () => {

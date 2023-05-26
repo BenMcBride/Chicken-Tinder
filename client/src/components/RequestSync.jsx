@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Button, Card, Form } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import socket from '../static/socket-client';
 
 const RequestSyncForm = (props) => {
   const [requestsync, setRequestSync] = useState({
@@ -30,6 +31,7 @@ const RequestSyncForm = (props) => {
     axios
       .post('http://localhost:8000/api/requests/request', requestsync)
       .then((res) => {
+        socket.emit('messageSent', requestsync.email);
         setRequestSync({
           senderEmail: '',
           email: '',
@@ -47,9 +49,13 @@ const RequestSyncForm = (props) => {
   };
 
   useEffect(() => {
-    if (!state.session) {
-      navigate('/');
-    }
+    const checkSession = () => {
+      const sessionData = localStorage.getItem('session');
+      if (!sessionData) {
+        navigate('/');
+      }
+    };
+    checkSession();
   }, []);
 
   return (
@@ -95,7 +101,7 @@ const RequestSyncForm = (props) => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label htmlFor="searchDistance">
-              Search Distance (in meters):
+              Search Distance (in km):
             </Form.Label>
             <Form.Control
               type="number"

@@ -26,6 +26,7 @@ const options = {
 function SwipeComponent() {
   const navigate = useNavigate();
   const { state } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [matchedRestaurant, setMatchedRestaurant] = useState(null);
   const { requestId } = useParams();
@@ -118,12 +119,15 @@ function SwipeComponent() {
         const restaurants = await fetchRestaurants(location, searchDistance);
         setRestaurants(restaurants);
         setPhotoUrl(restaurants.length > 0 ? restaurants[0].photoUrl : '');
+        setLoading(false);
       } catch (error) {
         console.error(error);
+        setLoading(false);
       }
     };
 
     if (searchAddress && searchDistance) {
+      setLoading(true);
       getRestaurants();
     }
   }, [searchAddress, searchDistance]);
@@ -159,9 +163,13 @@ function SwipeComponent() {
   };
 
   useEffect(() => {
-    if (!state.session) {
-      navigate('/');
-    }
+    const checkSession = () => {
+      const sessionData = localStorage.getItem('session');
+      if (!sessionData) {
+        navigate('/');
+      }
+    };
+    checkSession();
   }, []);
 
   const handleCloseModal = () => {
@@ -193,7 +201,9 @@ function SwipeComponent() {
         zoom={15}
         options={options}
       />
-      {restaurants.length > 0 && currentIndex < restaurants.length ? (
+      {loading ? (
+        <div>Loading...</div>
+      ) : restaurants.length > 0 && currentIndex < restaurants.length ? (
         <Card className="center">
           <Card.Header>
             <Card.Title className="text-center">
@@ -238,7 +248,15 @@ function SwipeComponent() {
                   </Card.Text>
                 </Card.Body>
                 <Card.Footer className="w-100 text-center">
-                  <Button variant="primary" href={link} target="_blank">
+                  <Button variant="primary" href="/users/requests/received">
+                    Back to Requests
+                  </Button>
+                  <Button
+                    className="ml-1"
+                    variant="primary"
+                    href={link}
+                    target="_blank"
+                  >
                     View Restaurant
                   </Button>
                 </Card.Footer>
