@@ -1,12 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import socket from '../static/socket-client';
 
 function ReceivedRequests() {
-  const { state } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
   const navigate = useNavigate();
 

@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
 import { Button, Card, Form } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +13,6 @@ const RequestSyncForm = (props) => {
   });
   const [errors, setErrors] = useState(null);
   const navigate = useNavigate();
-  const { state } = useContext(AuthContext);
 
   const changeHandler = (e) => {
     setRequestSync({

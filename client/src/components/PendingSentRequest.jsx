@@ -1,5 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import socket from '../static/socket-client';
 
@@ -8,7 +7,6 @@ function SentRequest() {
   const [isRequestAccepted, setIsRequestAccepted] = useState(false);
   const [isRequestDenied, setIsRequestDenied] = useState(false);
   const navigate = useNavigate();
-  const { state } = useContext(AuthContext);
 
   useEffect(() => {
     // Listen for the 'requestAccepted' event from the receiver
@@ -43,9 +41,13 @@ function SentRequest() {
   }, [isRequestDenied, navigate]);
 
   useEffect(() => {
-    if (!state.session) {
-      navigate('/');
-    }
+    const checkSession = () => {
+      const sessionData = localStorage.getItem('session');
+      if (!sessionData) {
+        navigate('/');
+      }
+    };
+    checkSession();
   }, []);
 
   return (

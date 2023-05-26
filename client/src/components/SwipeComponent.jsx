@@ -1,5 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -25,7 +24,6 @@ const options = {
 
 function SwipeComponent() {
   const navigate = useNavigate();
-  const { state } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [matchedRestaurant, setMatchedRestaurant] = useState(null);
