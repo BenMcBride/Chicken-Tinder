@@ -94,7 +94,7 @@ function ReceivedRequests() {
   return (
     <div className="messages-container d-flex justify-content-center flex-column center">
       <h2 className="text-center">Received Requests</h2>
-      <Table striped bordered responsive>
+      <Table striped bordered responsive className="tablebg">
         <thead>
           <tr>
             <th>Search Address</th>
