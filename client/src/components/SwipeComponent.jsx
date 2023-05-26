@@ -192,7 +192,7 @@ function SwipeComponent() {
   });
 
   return isLoaded ? (
-    <div className="swipe-container center">
+    <div className="swipe-container modal-style">
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -202,20 +202,20 @@ function SwipeComponent() {
       {loading ? (
         <div>Loading...</div>
       ) : restaurants.length > 0 && currentIndex < restaurants.length ? (
-        <Card className="center">
-          <Card.Header>
-            <Card.Title className="text-center">
+        <Card className="req-card">
+          <Card.Header className='req-card'>
+            <h3 className="text-center m-3">
               {restaurants[currentIndex].name}
-            </Card.Title>
+            </h3>
           </Card.Header>
-          <Card.Body>
+          <Card.Body className='p-0'>
             <Card.Img variant="top" src={photoUrl} />
             <Card.Text className="mt-2 text-center">
               Rating: {restaurants[currentIndex].rating}
             </Card.Text>
           </Card.Body>
-          <Card.Footer className="w-100 text-center">
-            <Button variant="primary" onClick={handleAccept}>
+          <Card.Footer className="w-100 text-center req-card">
+            <Button className="me-2" variant="success" onClick={handleAccept}>
               Accept
             </Button>
             <Button className="ml-1" variant="danger" onClick={handleReject}>
@@ -246,12 +246,12 @@ function SwipeComponent() {
                   </Card.Text>
                 </Card.Body>
                 <Card.Footer className="w-100 text-center">
-                  <Button variant="primary" href="/users/requests/received">
+                  <Button variant="success" href="/users/requests/received">
                     Back to Requests
                   </Button>
                   <Button
                     className="ml-1"
-                    variant="primary"
+                    variant="success"
                     href={link}
                     target="_blank"
                   >

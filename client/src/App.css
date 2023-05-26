@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;1,100;1,200;1,300;1,400;1,500&display=swap');
+
+* {
+  font-family: 'Montserrat', 'Open Sans', sans-serif;
+}
+
 .App {
   text-align: center;
 }
@@ -38,8 +44,8 @@
 }
 
 .accent {
-  color: #c56b31;
-  font-weight: bold;
+  color: #ff9017;
+  font-style: italic;
 }
 
 .no-padding {
@@ -56,8 +62,9 @@
 }
 
 .top {
-  height: 25vh;
+  margin-bottom: 40px;
   margin-top: 15vh;
+  padding-right: 10%;
 }
 
 .bottom {
@@ -70,16 +77,15 @@
 
 .hook {
   background-color: transparent;
-  border: 6px solid #c56b31;
+  border: 1px solid #ff9017;
   border-radius: 14px;
-  color: #c56b31;
+  color: #ff9017;
   font-size: 2em;
-  font-weight: bold;
 }
 
 .hook:hover {
-  background-color: #c56b31;
-  border: 6px solid #c5a996;
+  background-color: #ff9017;
+  border: 1px solid #c5a996;
   border-radius: 14px;
   color: white;
   font-size: 2em;
@@ -96,4 +102,41 @@
 
 .ml-1 {
   margin-left: 5px;
+}
+
+.splash {
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  background-image: url('./assets//images//splashchxcover2.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
+}
+
+.btn-bg-accent {
+  background-color: #ff9017;
+  border-color: transparent;
+}
+
+.btn-bg-accent:hover {
+  background-color: #c45007;
+}
+
+.subheading {
+  margin-top: 0;
+  margin-bottom: 50px;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.req-card {
+  background: rgba(19, 18, 18, 0.5);
+}
+
+.modal-style {
+  margin: auto;
 }

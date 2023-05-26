@@ -57,9 +57,9 @@ const RequestSyncForm = (props) => {
   }, []);
 
   return (
-    <Card className="mb-3" style={{ width: '30rem', margin: '0 auto' }}>
-      <Card.Header>
-        <h1 className="text-center">Send a Sync Request!</h1>
+    <Card className="req-card" style={{ width: '30rem', margin: 'auto' }}>
+      <Card.Header className="req-card">
+        <h3 className="text-center m-3">Send a Sync Request</h3>
       </Card.Header>
       <Card.Body>
         <Form onSubmit={submitHandler}>
@@ -81,7 +81,7 @@ const RequestSyncForm = (props) => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label htmlFor="searchLocation">
-              Address to search from:
+              Address to Search From:
             </Form.Label>
             <Form.Control
               type="text"
@@ -116,7 +116,7 @@ const RequestSyncForm = (props) => {
             )}
           </Form.Group>
           <Form.Group className="text-center">
-            <Button type="submit">Send Request</Button>
+            <Button type="submit" className="btn-bg-accent uppercase m-3">Send Request</Button>
           </Form.Group>
         </Form>
       </Card.Body>

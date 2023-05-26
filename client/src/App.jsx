@@ -14,8 +14,8 @@ import SentRequests from './components/SentRequests';
 function App() {
   return (
     <AuthProvider>
-      <Header />
-      <Container className="d-flex mt-3" fluid style={{ margin: '0 auto' }}>
+      <Container className="d-flex splash" fluid style={{ margin: '0 auto' }}>
+        <Header />
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />

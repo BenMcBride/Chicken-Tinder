@@ -51,7 +51,7 @@ function SentRequest() {
   }, []);
 
   return (
-    <div className="sent-request-container">
+    <div className="modal-style">
       <h2>Pending Request</h2>
       <p>Waiting for the receiver to accept the request...</p>
     </div>

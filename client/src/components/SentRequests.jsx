@@ -69,8 +69,7 @@ function SentRequests() {
                 {request.status === 'Pending' ? (
                   <>
                     <Button
-                      variant="primary"
-                      className="ml-1"
+                      className="ml-1 btn-bg-accent"
                       onClick={() => handleRejoinWait(request._id)}
                     >
                       Re-join Waiting room
@@ -79,8 +78,7 @@ function SentRequests() {
                 ) : request.status === 'Accepted' ? (
                   <>
                     <Button
-                      variant="primary"
-                      className="ml-1"
+                      className="ml-1 btn-bg-accent"
                       onClick={() => handleRejoinSocket(request._id)}
                     >
                       Rejoin Swipe

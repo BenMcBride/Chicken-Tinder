@@ -8,6 +8,7 @@ import { AuthContext } from '../context/AuthContext';
 import LoginModal from './LoginModal';
 import NewUserModal from './NewUserModal';
 import socket from '../static/socket-client';
+import { Avatar } from '@mui/material';
 
 function Header() {
   const { dispatch, state } = useContext(AuthContext);
@@ -60,18 +61,29 @@ function Header() {
     fetchPendingRequestsCount();
   }, [location.pathname]);
 
+  const logo = require('../assets/images/logo_transparent_background.png');
+
   return (
     <>
       <NewUserModal show={showSignUp} setShow={setShowSignUp} />
       <LoginModal show={show} setShow={setShow} />
-      <Navbar className="p-2" bg="dark" variant="dark" expand="lg">
+      <Navbar className="fixed-top" bg="transparent" variant="dark" expand="lg">
         <Container>
-          <Link className="navbar-brand accent" to="/">
+          <Avatar variant='square'
+            src={logo} alt='logo'
+            sx={{
+              height: 70,
+              width: 350,
+              textAlign: 'center'
+            }}
+          >
+          </Avatar>
+          {/* <Link className="navbar-brand accent" to="/">
             Chicken Tinder
-          </Link>
+          </Link> */}
           <Navbar.Toggle aria-controls="header" />
           <Navbar.Collapse id="header">
-            <Nav as="ul" className="me-auto">
+            <Nav as="ul" className="ms-auto uppercase">
               {state.session ? (
                 <>
                   <li>
@@ -80,14 +92,14 @@ function Header() {
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/requests/new">
-                      Send Request!
+                    <Link className="nav-link me-4" to="/requests/new">
+                      Send Request
                     </Link>
                   </li>
                 </>
               ) : (
                 <li>
-                  <Link className="nav-link" to="/dashboard">
+                  <Link className="nav-link me-5" to="/dashboard">
                     Home
                   </Link>
                 </li>
@@ -96,7 +108,7 @@ function Header() {
             {state.session ? (
               <div className="d-flex gap-2">
                 <Button
-                  className="btn ms-auto"
+                  className="btn ms-auto btn-bg-accent uppercase"
                   onClick={() => {
                     if (location.pathname === '/users/requests/received') {
                       window.location.reload();
@@ -109,26 +121,26 @@ function Header() {
                   {pendingRequestsCount > 0 && `(${pendingRequestsCount})`}
                 </Button>
                 <Button
-                  className="btn ms-auto"
+                  className="btn ms-auto btn-bg-accent uppercase"
                   onClick={() => {
                     navigate('/users/requests/sent');
                   }}
                 >
                   Sent
                 </Button>
-                <Button className="btn ms-auto" onClick={handleLogout}>
+                <Button className="btn ms-auto btn-bg-accent uppercase" onClick={handleLogout}>
                   Logout
                 </Button>
               </div>
             ) : (
               <div className="d-flex gap-2">
                 <Button
-                  className="btn ms-auto"
+                  className="btn ms-auto btn-bg-accent uppercase"
                   onClick={() => setShowSignUp(true)}
                 >
                   Sign Up
                 </Button>
-                <Button className="btn ms-auto" onClick={() => setShow(true)}>
+                <Button className="btn ms-auto btn-bg-accent uppercase" onClick={() => setShow(true)}>
                   Login
                 </Button>
               </div>
