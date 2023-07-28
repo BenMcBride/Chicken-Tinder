@@ -72,7 +72,11 @@ function SwipeComponent() {
 
       const { data } = response;
       if (data.status === 'OK') {
-        const restaurants = data.results.map((restaurant) => {
+        let restaurants = data.results;
+        restaurants = restaurants.filter(
+          (restaurant) => restaurant.business_status !== 'CLOSED_TEMPORARILY'
+        );
+        restaurants = restaurants.map((restaurant) => {
           let photoUrl = '';
           if (restaurant.photos && restaurant.photos.length > 0) {
             const photoReference = restaurant.photos[0].photo_reference;
@@ -83,6 +87,7 @@ function SwipeComponent() {
             photoUrl: photoUrl,
           };
         });
+        console.log(restaurants);
         return restaurants;
       } else {
         throw new Error('Failed to fetch restaurants');
@@ -203,12 +208,12 @@ function SwipeComponent() {
         <div>Loading...</div>
       ) : restaurants.length > 0 && currentIndex < restaurants.length ? (
         <Card className="req-card">
-          <Card.Header className='req-card'>
+          <Card.Header className="req-card">
             <h3 className="text-center m-3">
               {restaurants[currentIndex].name}
             </h3>
           </Card.Header>
-          <Card.Body className='p-0'>
+          <Card.Body className="p-0">
             <Card.Img variant="top" src={photoUrl} />
             <Card.Text className="mt-2 text-center">
               Rating: {restaurants[currentIndex].rating}
