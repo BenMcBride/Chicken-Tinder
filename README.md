@@ -1,6 +1,6 @@
 # Chicken Tinder 🍗
 Welcome to the repository for Chicken Tinder! This is an innovative application built for those who find it tough to decide where to have their next meal. Chicken Tinder allows two people to sync their accounts, accept or reject restaurants within the desired area, and when they both match on a place, that's where they dine!
-
+**Currently working on putting this app on the App Store and Google Play Store!**
 ![image](https://github.com/BenMcBride/Chicken-Tinder/assets/96863998/e93938f9-234d-4eee-8ec9-029cf855f93a)
 
 
